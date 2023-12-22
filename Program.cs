@@ -21,8 +21,6 @@ partial class Program {
         Window.Title = "vlg";
         Simulation.SetFixedResolution(1920, 1080, Color.Black, false, false, false);
 
-        //gameimages[0] = gaussianblur(gameimages[0], 1);
-
         if (debugDrawing)
         { debug.good("finished init"); }
         else
@@ -60,48 +58,14 @@ partial class Program {
         if (debugDrawing)
         { debug.good("smoothed yscroll"); debug.log("rendering gameimage 0"); }
 
+        canv.Translate(new Vector2(canv.Width / 2 - 128, canv.Height + canv.Height / 2 - smoothyscroll - 128));
         canv.Fill(gameimages[0]);
-        canv.DrawRoundedRect(new Vector2(canv.Width / 2, canv.Height + canv.Height / 2 - smoothyscroll), Vector2.One * 256, 10, Alignment.Center);
+        canv.DrawRoundedRect(new Vector2(128, 128), Vector2.One * 256, 10, Alignment.Center);
+        canv.ResetState();
 
         if (debugDrawing)
         { debug.good("rendered gameimage 0"); }
 
         debug.frame++;
-    }
-
-    static ITexture gaussianblur(ITexture image, int blurSize) {
-        ITexture blurred = Graphics.CreateTexture(image.Width, image.Height);
-
-        for (int xx = 0; xx < image.Width; xx++) {
-            for (int yy = 0; yy < image.Height; yy++) {
-                float avgR = 0, avgG = 0, avgB = 0, avgA = 0;
-                int blurPixelCount = 0;
-
-                for (int x = xx; (x < xx + blurSize && x < image.Width) ; x++) {
-                    for (int y = yy; (y < yy + blurSize && y < image.Height) ; y++) {
-                        Color pixel = image.GetPixel(x, y);
-
-                        avgR += pixel.R; avgG += pixel.G; avgB += pixel.B; avgA += pixel.A;
-
-                        blurPixelCount++;
-                    }
-                }
-
-                avgR = avgR / blurPixelCount;
-                avgG = avgG / blurPixelCount;
-                avgB = avgB / blurPixelCount;
-                avgA = avgA / blurPixelCount;
-
-                for (int x = xx; x < xx + blurSize && x < image.Width; x++) {
-                    for (int y = yy; y < yy + blurSize && y < image.Height; y++) {
-                        blurred.GetPixel(x, y) = new Color(avgR, avgG, avgB, avgA);
-                    }
-                }
-            }
-        }
-
-        image.Dispose();
-        blurred.ApplyChanges();
-        return blurred;
     }
 }
