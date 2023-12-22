@@ -3,6 +3,7 @@ using SimulationFramework.Desktop;
 using SimulationFramework.Drawing;
 using SimulationFramework.Input;
 using System.Numerics;
+using vlg;
 
 Simulation sim = Simulation.Create(Init, Rend);
 sim.Run(new DesktopPlatform());
@@ -12,9 +13,15 @@ partial class Program {
     static float smoothyscroll = 0;
     static float smooth = 5;
 
+    static ITexture[] gameimages = new ITexture[] { Graphics.LoadTexture(@"Assets\Menu\sandy.png") };
+
     static void Init() {
         Window.Title = "vlg";
         Simulation.SetFixedResolution(1920, 1080, Color.Black, false, false, false);
+
+        gameimages[0] = gaussianblur(gameimages[0], 5);
+
+        debug.good("finished init");
     }
 
     static void Rend(ICanvas canv) {
@@ -23,15 +30,22 @@ partial class Program {
         Gradient bggradl = new LinearGradient(canv.Width / 2, -smoothyscroll, canv.Width / 2, canv.Height - smoothyscroll, new Color[] { new Color(34, 35, 36), new Color(14, 14, 15) });
         Gradient bggradd = new LinearGradient(canv.Width / 2, -smoothyscroll + canv.Height, canv.Width / 2, canv.Height - smoothyscroll + canv.Height, new Color[] { new Color(14, 14, 15), new Color(8, 8, 8) });
 
-        canv.Fill(bggradl); //drawbg
+        canv.Fill(bggradl);
         canv.DrawRect(new Vector2(0, -smoothyscroll), new Vector2(canv.Width, canv.Height));
         canv.Fill(bggradd);
         canv.DrawRect(new Vector2(0, -smoothyscroll + canv.Height), new Vector2(canv.Width, canv.Height));
 
-        yscroll += -(int)Mouse.ScrollWheelDelta * 36; //apply y scroll
+        yscroll += -(int)Mouse.ScrollWheelDelta * 36;
         yscroll = Math.Clamp(yscroll, 0, canv.Height);
 
-        smoothyscroll += (yscroll - smoothyscroll) / (smooth * (1 / (Time.DeltaTime * 30))); //smooth y scroll and apply it to variable
+        smoothyscroll += (yscroll - smoothyscroll) / (smooth * (1 / (Time.DeltaTime * 30)));
+
+        debug.log("rendering gameimage 0");
+
+        canv.Fill(gameimages[0]);
+        canv.DrawRoundedRect(new Vector2(canv.Width / 2, canv.Height + canv.Height / 2 - smoothyscroll), Vector2.One * 256, 10, Alignment.Center);
+
+        debug.good("rendered gameimage 0");
     }
 
     static ITexture gaussianblur(ITexture image, int blurSize) {
