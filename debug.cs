@@ -36,5 +36,14 @@ namespace vlg
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"ALERT (FRAME {frame}) [{(now - start).TotalMilliseconds} ms]: {inp}");
         }
+
+        public static void msg(string inp) {
+            now = DateTime.Now;
+
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"MESSAGE (FRAME {frame}) [{(now - start).TotalMilliseconds} ms]: {inp}");
+
+            Console.ForegroundColor = ConsoleColor.Red;
+        }
     }
 }
