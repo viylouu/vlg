@@ -34,6 +34,8 @@ partial class Program {
 
     static Vector2 windowdims = Vector2.One;
 
+    static string _username = "";
+
     static void Init() {
         Audio.MasterVolume = 0.0125f;
 
@@ -46,6 +48,17 @@ partial class Program {
         menutitleyACT = -windowdims.Y * 2;
 
         ambientPlayback = ambience.Play();
+
+        string content = null;
+        string path = Directory.GetCurrentDirectory() + @"\Assets\Saves\userdata.json";
+
+        using (StreamReader sr = new StreamReader(path)) { 
+            content = sr.ReadToEnd();
+        }
+
+        userData readData = Newtonsoft.Json.JsonConvert.DeserializeObject<userData>(content);
+        _username = readData.username;
+        hasUsername = readData.hasname;
     }
 
     static void Rend(ICanvas canv) {
@@ -62,12 +75,12 @@ partial class Program {
         if (ambientPlayback.IsStopped) 
         { ambientPlayback = ambience.Play(); }
 
-        if (stscroll != (int)Mouse.ScrollWheelDelta) { 
+        if (stscroll != (int)Mouse.ScrollWheelDelta && hasUsername) { 
             stscroll = (int)Mouse.ScrollWheelDelta;
             scroll.Play();
         }
 
-        if (Mouse.IsButtonPressed(MouseButton.Left) || Mouse.IsButtonPressed(MouseButton.Right) || Mouse.IsButtonPressed(MouseButton.Middle)) 
+        if (Keyboard.PressedKeys.Any() || Mouse.IsButtonPressed(MouseButton.Left) || Mouse.IsButtonPressed(MouseButton.Right) || Mouse.IsButtonPressed(MouseButton.Middle)) 
         { click.Play(); }
     }
 
@@ -81,31 +94,55 @@ partial class Program {
     static void drawOther(ICanvas canv) {
         canv.Fill(Color.White);
         canv.FontSize(24);
-        canv.DrawText("welcome to vlg", new Vector2(canv.Width / 2, menutitley - smoothyscroll), Alignment.Center);
+        canv.DrawText(!hasUsername? "welcome to vlg" : $"welcome back {_username}", new Vector2(canv.Width / 2, menutitley - smoothyscroll), Alignment.Center);
 
         if (!hasUsername) {
-            ImGui.Begin("insert username");
+            ImGui.Begin("menu");
 
             ImGui.SetWindowSize(new Vector2(336, 140));
             ImGui.SetWindowPos(new Vector2(windowdims.X / 2 - 336 / 2f, (menutitleyACT - windowdims.Y / 2 + 120) - smoothyscrollACT));
 
-            ImGui.Text("please insert username below");
+            ImGui.Text("insert username");
+            ImGui.InputText("username", ref _username, 30);
+
+            if (ImGui.Button("apply") && _username != "") {
+                userData userdata = new userData() { 
+                    hasname = true,
+                    username = _username
+                };
+                
+                saveusername(userdata);
+
+                Environment.Exit(0);
+            }
 
             ImGui.End();
+        }
+    }
+
+    static void saveusername(userData data) {
+        var serObj = Newtonsoft.Json.JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented);
+
+        string path = Directory.GetCurrentDirectory() + @"\Assets\Saves\userdata.json";
+
+        using (StreamWriter sw = new StreamWriter(path)) {
+            sw.Write(serObj);
         }
     }
 
     static void updVars() {
         ICanvas canv = Graphics.GetOutputCanvas();
 
-        yscroll += -(int)Mouse.ScrollWheelDelta * 36;
-        yscroll = Math.Clamp(yscroll, 0, canv.Height);
+        if (hasUsername) {
+            yscroll += -(int)Mouse.ScrollWheelDelta * 36;
+            yscroll = Math.Clamp(yscroll, 0, canv.Height);
 
-        yscrollACT += -(int)(Mouse.ScrollWheelDelta * (windowdims.Y / 30));
-        yscrollACT = (int)Math.Clamp(yscrollACT, 0, windowdims.Y);
+            yscrollACT += -(int)(Mouse.ScrollWheelDelta * (windowdims.Y / 30));
+            yscrollACT = (int)Math.Clamp(yscrollACT, 0, windowdims.Y);
 
-        smoothyscroll += (yscroll - smoothyscroll) / (smooth * (1 / (Time.DeltaTime * 30)));
-        smoothyscrollACT += (yscrollACT - smoothyscrollACT) / (smooth * (1 / (Time.DeltaTime * 30)));
+            smoothyscroll += (yscroll - smoothyscroll) / (smooth * (1 / (Time.DeltaTime * 30)));
+            smoothyscrollACT += (yscrollACT - smoothyscrollACT) / (smooth * (1 / (Time.DeltaTime * 30)));
+        }
 
         menutitley += (canv.Height / 2f - menutitley) / (smooth * 1.25f * (1 / (Time.DeltaTime * 30)));
         menutitleyACT += (windowdims.X / 2f - menutitleyACT) / (smooth * 1.25f * (1 / (Time.DeltaTime * 30)));
@@ -125,5 +162,10 @@ partial class Program {
         canv.DrawRect(new Vector2(0, -smoothyscroll), new Vector2(canv.Width, canv.Height));
         canv.Fill(bgGradB);
         canv.DrawRect(new Vector2(0, -smoothyscroll + canv.Height), new Vector2(canv.Width, canv.Height));
+    }
+
+    class userData { 
+        public bool hasname { get; set; }
+        public string username { get; set; }
     }
 }
