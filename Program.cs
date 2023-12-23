@@ -36,6 +36,10 @@ partial class Program {
 
     static string _username = "";
 
+    static Color[,] cursorblank = new Color[4, 4];
+
+    static Vector2 mousepos1 = Vector2.Zero;
+
     static void Init() {
         Audio.MasterVolume = 0.0125f;
 
@@ -59,6 +63,23 @@ partial class Program {
         userData readData = Newtonsoft.Json.JsonConvert.DeserializeObject<userData>(content);
         _username = readData.username;
         hasUsername = readData.hasname;
+
+        for (int i = 0; i < gameimages.Length; i++) {
+            gameimages[i] = gaussian(gameimages[i], 5);
+        }
+
+        for (int x = 0; x < 4; x++) {
+            for (int y = 0; y < 4; y++) {
+                cursorblank[x, y] = new Color(255, 255, 255);
+            }
+        }
+
+        cursorblank[0, 0] = new Color(0, 0, 0, 0);
+        cursorblank[0, 3] = new Color(0, 0, 0, 0);
+        cursorblank[3, 3] = new Color(0, 0, 0, 0);
+        cursorblank[3, 0] = new Color(0, 0, 0, 0);
+
+        Mouse.SetCursor(cursorblank, Alignment.Center);
     }
 
     static void Rend(ICanvas canv) {
@@ -96,6 +117,27 @@ partial class Program {
         canv.FontSize(24);
         canv.DrawText(!hasUsername? "welcome to vlg" : $"welcome back {_username}", new Vector2(canv.Width / 2, menutitley - smoothyscroll), Alignment.Center);
 
+        /*
+        //draw progress bar
+        Gradient barGradB = new LinearGradient(canv.Width - 25, 25, canv.Width - 25,
+            canv.Height + 25, new Color[] { new Color(105, 110, 112), new Color(75, 77, 82) });
+        Gradient barGradA = new LinearGradient(canv.Width / 2f, -smoothyscroll + canv.Height, canv.Width / 2f,
+            canv.Height - smoothyscroll + canv.Height, new Color[] { new Color(161, 171, 171), new Color(105, 110, 112) });
+
+        canv.Translate(new Vector2(canv.Width - 50, 25));
+        canv.Fill(barGradB);
+        canv.DrawRoundedRect(Vector2.Zero, new Vector2(30, canv.Height - 50), 15f, Alignment.TopLeft);
+        canv.ResetState();
+
+        canv.Translate(new Vector2(canv.Width - 42.5f, 37.5f));
+        canv.Fill(barGradA);
+        canv.DrawRoundedRect(Vector2.Zero, new Vector2(15, (canv.Height - 75) - ((1080 - smoothyscroll) / 1080f * (canv.Height - 75))), 15f, Alignment.TopLeft);
+        canv.ResetState();
+        */
+
+        //cursor
+        canv.DrawCircle(new Vector2(mousepos1.X, mousepos1.Y - smoothyscroll), 5, Alignment.Center);
+
         if (!hasUsername) {
             ImGui.Begin("menu");
 
@@ -117,7 +159,27 @@ partial class Program {
             }
 
             ImGui.End();
+
+            return;
         }
+
+        ImGui.Begin("menu");
+
+        ImGui.SetWindowSize(new Vector2(336, 140));
+        ImGui.SetWindowPos(new Vector2(windowdims.X / 2 - 336 / 2f, (menutitleyACT - windowdims.Y / 2 + 120) - smoothyscrollACT));
+        
+        if (ImGui.Button("clear username")) {
+            userData userdata = new userData() {
+                hasname = false,
+                username = ""
+            };
+
+            saveusername(userdata);
+
+            Environment.Exit(0);
+        }
+
+        ImGui.End();
     }
 
     static void saveusername(userData data) {
@@ -147,6 +209,8 @@ partial class Program {
         menutitley += (canv.Height / 2f - menutitley) / (smooth * 1.25f * (1 / (Time.DeltaTime * 30)));
         menutitleyACT += (windowdims.X / 2f - menutitleyACT) / (smooth * 1.25f * (1 / (Time.DeltaTime * 30)));
 
+        mousepos1 += (Mouse.Position - (mousepos1-new Vector2(0, smoothyscroll))) / (smooth / 2f * (1 / (Time.DeltaTime * 30)));
+
         windowdims = new Vector2(ImGui.GetMainViewport().Size.X, ImGui.GetMainViewport().Size.Y);
     }
 
@@ -167,5 +231,38 @@ partial class Program {
     class userData { 
         public bool hasname { get; set; }
         public string username { get; set; }
+    }
+
+    static ITexture gaussian(ITexture image, int blurAmt) {
+        ITexture img = Graphics.CreateTexture(image.Width, image.Height);
+
+        for (int x = 0; x < image.Width; x++) {
+            for (int y = 0; y < image.Height; y++) {
+                img.GetPixel(x, y) = calcblurcol(image, new Vector2(x, y), blurAmt);
+            }
+        }
+
+        image.Dispose();
+        img.ApplyChanges();
+        return img;
+    }
+
+    static Color calcblurcol(ITexture image, Vector2 pos, int blurAmt) {
+        int totalR = 0, totalG = 0, totalB = 0, count = 0;
+
+        for (int i = -blurAmt; i <= blurAmt; i++) {
+            for (int j = -blurAmt; j <= blurAmt; j++) {
+                int newX = Math.Max(0, Math.Min(image.Width - 1, (int)pos.X + i));
+                int newY = Math.Max(0, Math.Min(image.Height - 1, (int)pos.Y + j));
+
+                totalR += image.GetPixel(newX, newY).R;
+                totalG += image.GetPixel(newX, newY).G;
+                totalB += image.GetPixel(newX, newY).B;
+
+                count++;
+            }
+        }
+
+        return new Color(totalR / count, totalG / count, totalB / count);
     }
 }
