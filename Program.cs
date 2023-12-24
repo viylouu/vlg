@@ -92,6 +92,8 @@ partial class Program {
     }
 
     static void Rend(ICanvas canv) {
+        cons.dbg.now = DateTime.Now;
+
         if (current) {
             drawBG(canv);
             drawGames(canv);
