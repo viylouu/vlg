@@ -202,11 +202,9 @@ partial class Program {
     }
 
     static void updVars() {
-        ICanvas canv = Graphics.GetOutputCanvas();
-
         if (hasUsername) {
             yscroll += -(int)Mouse.ScrollWheelDelta * 36;
-            yscroll = (int)m.clmp(yscroll, 0, canv.Height);
+            yscroll = (int)m.clmp(yscroll, 0, Window.Height);
 
             yscrollACT += -(int)(Mouse.ScrollWheelDelta * (windowdims.Y / 30));
             yscrollACT = (int)m.clmp(yscrollACT, 0, windowdims.Y);
@@ -215,7 +213,7 @@ partial class Program {
             smoothyscrollACT += (yscrollACT - smoothyscrollACT) / (smooth * (1 / (Time.DeltaTime * 30)));
         }
 
-        menutitley += (canv.Height / 2f - menutitley) / (smooth * 1.25f * (1 / (Time.DeltaTime * 30)));
+        menutitley += (Window.Height / 2f - menutitley) / (smooth * 1.25f * (1 / (Time.DeltaTime * 30)));
         menutitleyACT += (windowdims.X / 2f - menutitleyACT) / (smooth * 1.25f * (1 / (Time.DeltaTime * 30)));
 
         mousepos1 += (Mouse.Position - (mousepos1-new Vector2(0, smoothyscroll))) / (smooth / 2f * (1 / (Time.DeltaTime * 30)));
