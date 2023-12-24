@@ -15,15 +15,11 @@ partial class Program {
     static float smoothyscrollACT = 0;
     static readonly float smooth = 5;
 
-    static ITexture[] gameimages = new ITexture[] { Graphics.LoadTexture(@"Assets\Menu\sandy.png") };
-    static readonly float tilesmooth = 25;
-
     static ISound ambience = Audio.LoadSound(@"Assets\Menu\ambience.wav");
     static SoundPlayback ambientPlayback = null;
 
     static ISound click = Audio.LoadSound(@"Assets\Menu\click.wav");
     static ISound scroll = Audio.LoadSound(@"Assets\Menu\scroll.wav");
-    static ISound hover = Audio.LoadSound(@"Assets\Menu\hover.wav");
 
     static int stscroll = 0;
 
@@ -36,9 +32,15 @@ partial class Program {
 
     static string _username = "";
 
-    static Color[,] cursorblank = new Color[4, 4];
+    static Color[,] cursorblank = new Color[6, 6];
 
     static Vector2 mousepos1 = Vector2.Zero;
+
+    public static bool current = true;
+
+    //game running logic
+    public static Action curUpdate = null;
+    public static ICanvas curCanv = null; 
 
     static void Init() {
         Audio.MasterVolume = 0.0125f;
@@ -64,32 +66,47 @@ partial class Program {
         _username = readData.username;
         hasUsername = readData.hasname;
 
-        for (int i = 0; i < gameimages.Length; i++) {
-            gameimages[i] = gaussian(gameimages[i], 5);
+        for (int x = 0; x < 6; x++) {
+            for (int y = 0; y < 6; y++) {
+                cursorblank[x, y] = new Color(0, 0, 0);
+            }
         }
 
-        for (int x = 0; x < 4; x++) {
-            for (int y = 0; y < 4; y++) {
+        for (int x = 1; x < 5; x++) {
+            for (int y = 1; y < 5; y++) {
                 cursorblank[x, y] = new Color(255, 255, 255);
             }
         }
 
+        cursorblank[1, 1] = new Color(0, 0, 0);
+        cursorblank[1, 4] = new Color(0, 0, 0);
+        cursorblank[4, 4] = new Color(0, 0, 0);
+        cursorblank[4, 1] = new Color(0, 0, 0);
+
         cursorblank[0, 0] = new Color(0, 0, 0, 0);
-        cursorblank[0, 3] = new Color(0, 0, 0, 0);
-        cursorblank[3, 3] = new Color(0, 0, 0, 0);
-        cursorblank[3, 0] = new Color(0, 0, 0, 0);
+        cursorblank[0, 5] = new Color(0, 0, 0, 0);
+        cursorblank[5, 5] = new Color(0, 0, 0, 0);
+        cursorblank[5, 0] = new Color(0, 0, 0, 0);
 
         Mouse.SetCursor(cursorblank, Alignment.Center);
     }
 
     static void Rend(ICanvas canv) {
-        drawBG(canv);
-        drawGames(canv);
-        drawOther(canv);
+        if (current) {
+            drawBG(canv);
+            drawGames(canv);
+            drawOther(canv);
 
-        audio();
+            audio();
 
-        updVars();
+            updVars();
+
+            return;
+        }
+
+        curCanv = canv;
+
+        curUpdate();
     }
 
     static void audio() {
@@ -106,10 +123,18 @@ partial class Program {
     }
 
     static void drawGames(ICanvas canv) {
-        canv.Translate(new Vector2(canv.Width / 2f - 128, canv.Height + canv.Height / 2f - smoothyscroll - 128));
-        canv.Fill(gameimages[0]);
-        canv.DrawRoundedRect(new Vector2(128, 128), Vector2.One * 256, tilesmooth, Alignment.Center);
-        canv.ResetState();
+        ImGui.Begin("games");
+
+        ImGui.SetWindowSize(new Vector2(336, 140));
+        ImGui.SetWindowPos(new Vector2(windowdims.X / 2 - 336 / 2f, windowdims.Y * 1.45f - smoothyscrollACT));
+        
+        if (ImGui.Button("sandy")) {
+            sandy.takeover();
+        }
+
+        ImGui.SameLine();
+
+        ImGui.End();
     }
 
     static void drawOther(ICanvas canv) {
@@ -117,26 +142,8 @@ partial class Program {
         canv.FontSize(24);
         canv.DrawText(!hasUsername? "welcome to vlg" : $"welcome back {_username}", new Vector2(canv.Width / 2, menutitley - smoothyscroll), Alignment.Center);
 
-        /*
-        //draw progress bar
-        Gradient barGradB = new LinearGradient(canv.Width - 25, 25, canv.Width - 25,
-            canv.Height + 25, new Color[] { new Color(105, 110, 112), new Color(75, 77, 82) });
-        Gradient barGradA = new LinearGradient(canv.Width / 2f, -smoothyscroll + canv.Height, canv.Width / 2f,
-            canv.Height - smoothyscroll + canv.Height, new Color[] { new Color(161, 171, 171), new Color(105, 110, 112) });
-
-        canv.Translate(new Vector2(canv.Width - 50, 25));
-        canv.Fill(barGradB);
-        canv.DrawRoundedRect(Vector2.Zero, new Vector2(30, canv.Height - 50), 15f, Alignment.TopLeft);
-        canv.ResetState();
-
-        canv.Translate(new Vector2(canv.Width - 42.5f, 37.5f));
-        canv.Fill(barGradA);
-        canv.DrawRoundedRect(Vector2.Zero, new Vector2(15, (canv.Height - 75) - ((1080 - smoothyscroll) / 1080f * (canv.Height - 75))), 15f, Alignment.TopLeft);
-        canv.ResetState();
-        */
-
         //cursor
-        canv.DrawCircle(new Vector2(mousepos1.X, mousepos1.Y - smoothyscroll), 5, Alignment.Center);
+        canv.DrawCircle(new Vector2(mousepos1.X, mousepos1.Y - smoothyscroll), 8, Alignment.Center);
 
         if (!hasUsername) {
             ImGui.Begin("menu");
@@ -197,10 +204,10 @@ partial class Program {
 
         if (hasUsername) {
             yscroll += -(int)Mouse.ScrollWheelDelta * 36;
-            yscroll = Math.Clamp(yscroll, 0, canv.Height);
+            yscroll = (int)m.clmp(yscroll, 0, canv.Height);
 
             yscrollACT += -(int)(Mouse.ScrollWheelDelta * (windowdims.Y / 30));
-            yscrollACT = (int)Math.Clamp(yscrollACT, 0, windowdims.Y);
+            yscrollACT = (int)m.clmp(yscrollACT, 0, windowdims.Y);
 
             smoothyscroll += (yscroll - smoothyscroll) / (smooth * (1 / (Time.DeltaTime * 30)));
             smoothyscrollACT += (yscrollACT - smoothyscrollACT) / (smooth * (1 / (Time.DeltaTime * 30)));
@@ -252,8 +259,8 @@ partial class Program {
 
         for (int i = -blurAmt; i <= blurAmt; i++) {
             for (int j = -blurAmt; j <= blurAmt; j++) {
-                int newX = Math.Max(0, Math.Min(image.Width - 1, (int)pos.X + i));
-                int newY = Math.Max(0, Math.Min(image.Height - 1, (int)pos.Y + j));
+                int newX = (int)m.max(0, m.min(image.Width - 1, (int)pos.X + i));
+                int newY = (int)m.max(0, m.min(image.Height - 1, (int)pos.Y + j));
 
                 totalR += image.GetPixel(newX, newY).R;
                 totalG += image.GetPixel(newX, newY).G;
