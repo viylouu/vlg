@@ -90,7 +90,7 @@ partial class sandy {
                         bool moved = false;
 
                         if (y > 0) {
-                            movecell(ref moved, 0, -1, x, y, ref cellupd, ref upd);
+                            movecell(ref moved, 0, -1, x, y, ref cellupd, ref upd, false);
                         }
                     }
                 }
@@ -100,16 +100,18 @@ partial class sandy {
         if (upd) { maptex.ApplyChanges(); }
     }
 
-    static void movecell(ref bool moved, int x, int y, int curx, int cury, ref bool[,] cellupd, ref bool upd) { 
+    static void movecell(ref bool moved, int x, int y, int curx, int cury, ref bool[,] cellupd, ref bool upd, bool swap) { 
         cell cur = map[curx, cury];
-        map[curx, cury] = null;
+        cell prev = map[curx + x, cury + y];
+        map[curx, cury] = swap? prev : null;
         map[curx + x, cury + y] = cur;
         cellupd[curx + x, cury + y] = true;
         moved = true;
-        upd = true;
 
-        maptex.GetPixel(curx, cury) = Color.Transparent;
+        maptex.GetPixel(curx, cury) = swap? map[curx, cury].col : Color.Transparent;
         maptex.GetPixel(curx + x, cury + y) = map[curx + x, cury + y].col;
+
+        upd = true;
     }
 
     class cell { 
