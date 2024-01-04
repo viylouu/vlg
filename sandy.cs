@@ -10,15 +10,18 @@ partial class sandy {
     static cell[,] map = null;
     static bool[,] cellupd = null;
     static ITexture maptex = null;
-    static float updtime = 1 / 60f;
+    static float updtime = 1;
     static float time = updtime;
+    static float fps = 0;
+    static float avdur = 1;
+    static float avprog = 1;
 
     static cell sand = new cell() {
-        col = new Color(237, 188, 90),
+        col = new Color(237, 188, 90, 255),
         move = true
     };
 
-    public static void takeover() { 
+    public static void takeover() {
         Program.curUpdate = () => Rend(Program.curCanv);
         Program.current = false;
 
@@ -41,8 +44,11 @@ partial class sandy {
     static void updvars() {
         mp += m.twn2(mp, Mouse.Position, ms);
 
-        if (Mouse.IsButtonDown(MouseButton.Left) && mp.X >= 0 && Window.Height - mp.Y >= 0 && mp.X >= Window.Width && Window.Height - mp.Y < Window.Height) 
-        { map[(int)mp.X, (int)(Window.Height - mp.Y)] = sand; }
+        if (Mouse.IsButtonDown(MouseButton.Left) && mp.X >= 0 && Window.Height - mp.Y >= 0 && mp.X >= Window.Width && Window.Height - mp.Y < Window.Height) { 
+            map[(int)mp.X, (int)(Window.Height - mp.Y)] = sand;
+
+            maptex.GetPixel((int)mp.X, (int)(Window.Height - mp.Y)) = sand.col;
+        }
 
         time -= Time.DeltaTime;
 
@@ -50,15 +56,26 @@ partial class sandy {
             process();
             time = updtime;
         }
+
+        avprog -= Time.DeltaTime;
+
+        if (avprog <= 0) {
+            avprog = avdur;
+            fps = m.rnd(1 / Time.DeltaTime);
+        }
     }
 
     static void draw(ICanvas canv) {
         canv.Clear(new Color(44, 45, 53));
 
-        canv.DrawTexture(maptex, Alignment.TopLeft);
+        canv.Scale(1, 1);
+        canv.DrawTexture(maptex, Vector2.Zero, new Vector2(canv.Width, canv.Height), Alignment.TopLeft);
+        canv.ResetState();
 
         canv.Fill(Color.White);
         canv.DrawRect(m.rnd(mp.X), m.rnd(mp.Y), 1, 1, Alignment.TopLeft);
+
+        canv.DrawText($"FPS: {fps}", Vector2.One * 5, Alignment.TopLeft);
     }
 
     static void process() {

@@ -38,12 +38,18 @@ partial class Program {
 
     public static bool current = true;
 
+    static game[] games = new game[] {
+        new game() { dn = "sandy", to = sandy.takeover },
+        new game() { dn = "farmlight", to = farmlight.takeover }
+    };
+
     //game running logic
     public static Action curUpdate = null;
-    public static ICanvas curCanv = null; 
+    public static ICanvas curCanv = null;
 
-    static void Init() {
+    static async void load() {
         Audio.MasterVolume = 0.0125f;
+        ambientPlayback = ambience.Play();
 
         windowdims = new Vector2(ImGui.GetMainViewport().Size.X, ImGui.GetMainViewport().Size.Y);
 
@@ -53,19 +59,24 @@ partial class Program {
         menutitley = -1080 * 2;
         menutitleyACT = -windowdims.Y * 2;
 
-        ambientPlayback = ambience.Play();
+        loaddata();
+        makecursor();
+    }
 
+    static void loaddata() { 
         string content = null;
         string path = Directory.GetCurrentDirectory() + @"\Assets\Saves\userdata.json";
 
-        using (StreamReader sr = new StreamReader(path)) { 
+        using (StreamReader sr = new StreamReader(path)) {
             content = sr.ReadToEnd();
         }
 
         userData readData = Newtonsoft.Json.JsonConvert.DeserializeObject<userData>(content);
         _username = readData.username;
         hasUsername = readData.hasname;
+    }
 
+    static void makecursor() { 
         for (int x = 0; x < 6; x++) {
             for (int y = 0; y < 6; y++) {
                 cursorblank[x, y] = new Color(0, 0, 0);
@@ -91,17 +102,15 @@ partial class Program {
         Mouse.SetCursor(cursorblank, Alignment.Center);
     }
 
+    static void Init() { load(); }
+
     static void Rend(ICanvas canv) {
         cons.dbg.now = DateTime.Now;
 
         if (current) {
-            drawBG(canv);
-            drawGames(canv);
-            drawOther(canv);
-
+            draw(canv);
             audio();
-
-            updVars();
+            vars();
 
             return;
         }
@@ -109,6 +118,12 @@ partial class Program {
         curCanv = canv;
 
         curUpdate();
+    }
+
+    static void draw(ICanvas canv) {
+        drawBG(canv);
+        drawGames(canv);
+        drawOther(canv);
     }
 
     static void audio() {
@@ -129,9 +144,12 @@ partial class Program {
 
         ImGui.SetWindowSize(new Vector2(336, 140));
         ImGui.SetWindowPos(new Vector2(windowdims.X / 2 - 336 / 2f, windowdims.Y * 1.45f - smoothyscrollACT));
-        
-        if (ImGui.Button("sandy")) {
-            sandy.takeover();
+
+        for (int i = 0; i < games.Length; i++) {
+            if (i % 5 != 0)
+                ImGui.SameLine();
+            if (ImGui.Button(games[i].dn))
+                games[i].to();
         }
 
         ImGui.SameLine();
@@ -201,7 +219,7 @@ partial class Program {
         }
     }
 
-    static void updVars() {
+    static void vars() {
         if (hasUsername) {
             yscroll += -(int)Mouse.ScrollWheelDelta * 36;
             yscroll = (int)m.clmp(yscroll, 0, Window.Height);
@@ -271,5 +289,10 @@ partial class Program {
         }
 
         return new Color(totalR / count, totalG / count, totalB / count);
+    }
+
+    class game { 
+        public string dn { get; set; }
+        public Action to { get; set; }
     }
 }
