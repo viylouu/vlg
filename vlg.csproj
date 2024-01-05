@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="SimulationFramework" Version="0.2.1-beta.7" />
-    <PackageReference Include="SimulationFramework.Desktop" Version="0.2.1-beta.6" />
+    <PackageReference Include="SimulationFramework.Desktop" Version="0.2.1-beta.7" />
     <PackageReference Include="SimulationFramework.SkiaSharp" Version="0.2.1-beta.7" />
   </ItemGroup>
 
