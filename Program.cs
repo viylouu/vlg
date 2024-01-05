@@ -47,7 +47,7 @@ partial class Program {
     public static Action curUpdate = null;
     public static ICanvas curCanv = null;
 
-    static async void load() {
+    static void load() {
         Audio.MasterVolume = 0.0125f;
         ambientPlayback = ambience.Play();
 

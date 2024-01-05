@@ -36,8 +36,11 @@ partial class m {
 
     public static Vector2 twn2(Vector2 pos, Vector2 target, float smooth) { return (target - pos) / (smooth * (1 / (Time.DeltaTime * 30))); }
     public static Vector3 twn3(Vector3 pos, Vector3 target, float smooth) { return (target - pos) / (smooth * (1 / (Time.DeltaTime * 30))); }
-    public static float twn(float a, float b, float smooth) { return (b - a) / (smooth * (1 / (Time.DeltaTime * 30))); }
+    public static float twn(float cur, float targ, float smooth) { return (targ - cur) / (smooth * (1 / (Time.DeltaTime * 30))); }
+
+    public static int rando(int min, int max) { Random r = new Random(); return r.Next(min, max); }
 
     public static float pi = MathF.PI;
     public static float e = MathF.E;
+    public static float inf = float.PositiveInfinity;
 }
