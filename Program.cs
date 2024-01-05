@@ -38,6 +38,8 @@ partial class Program {
 
     public static bool current = true;
 
+    static float _vol = 1;
+
     static game[] games = new game[] {
         new game() { dn = "sandy", to = sandy.takeover },
         new game() { dn = "farmlight", to = farmlight.takeover }
@@ -48,9 +50,6 @@ partial class Program {
     public static ICanvas curCanv = null;
 
     static void load() {
-        Audio.MasterVolume = 0.0125f;
-        ambientPlayback = ambience.Play();
-
         windowdims = new Vector2(ImGui.GetMainViewport().Size.X, ImGui.GetMainViewport().Size.Y);
 
         Window.Title = "vlg";
@@ -60,7 +59,12 @@ partial class Program {
         menutitleyACT = -windowdims.Y * 2;
 
         loaddata();
+
+        Audio.MasterVolume = _vol;
+
         makecursor();
+
+        ambientPlayback = ambience.Play();
     }
 
     static void loaddata() { 
@@ -74,6 +78,7 @@ partial class Program {
         userData readData = Newtonsoft.Json.JsonConvert.DeserializeObject<userData>(content);
         _username = readData.username;
         hasUsername = readData.hasname;
+        _vol = readData.vol;
     }
 
     static void makecursor() { 
@@ -177,12 +182,30 @@ partial class Program {
             if (ImGui.Button("apply") && _username != "") {
                 userData userdata = new userData() { 
                     hasname = true,
-                    username = _username
+                    username = _username,
+                    vol = _vol
                 };
                 
                 saveusername(userdata);
 
                 Environment.Exit(0);
+            }
+
+            float __vol2 = _vol;
+
+            ImGui.SliderFloat("volume", ref _vol, 0, 1);
+
+            if (__vol2 != _vol)
+            { Audio.MasterVolume = _vol; }
+
+            if (ImGui.Button("save")) {
+                userData userdata = new userData() {
+                    hasname = true,
+                    username = _username,
+                    vol = _vol
+                };
+
+                saveusername(userdata);
             }
 
             ImGui.End();
@@ -198,12 +221,30 @@ partial class Program {
         if (ImGui.Button("clear username")) {
             userData userdata = new userData() {
                 hasname = false,
-                username = ""
+                username = "",
+                vol = _vol
             };
 
             saveusername(userdata);
 
             Environment.Exit(0);
+        }
+
+        float __vol = _vol;
+
+        ImGui.SliderFloat("volume", ref _vol, 0, 1);
+
+        if (__vol != _vol)
+        { Audio.MasterVolume = _vol; }
+
+        if (ImGui.Button("save")) {
+            userData userdata = new userData() {
+                hasname = true,
+                username = _username,
+                vol = _vol
+            };
+
+            saveusername(userdata);
         }
 
         ImGui.End();
@@ -256,39 +297,7 @@ partial class Program {
     class userData { 
         public bool hasname { get; set; }
         public string username { get; set; }
-    }
-
-    static ITexture gaussian(ITexture image, int blurAmt) {
-        ITexture img = Graphics.CreateTexture(image.Width, image.Height);
-
-        for (int x = 0; x < image.Width; x++) {
-            for (int y = 0; y < image.Height; y++) {
-                img.GetPixel(x, y) = calcblurcol(image, new Vector2(x, y), blurAmt);
-            }
-        }
-
-        image.Dispose();
-        img.ApplyChanges();
-        return img;
-    }
-
-    static Color calcblurcol(ITexture image, Vector2 pos, int blurAmt) {
-        int totalR = 0, totalG = 0, totalB = 0, count = 0;
-
-        for (int i = -blurAmt; i <= blurAmt; i++) {
-            for (int j = -blurAmt; j <= blurAmt; j++) {
-                int newX = (int)m.max(0, m.min(image.Width - 1, (int)pos.X + i));
-                int newY = (int)m.max(0, m.min(image.Height - 1, (int)pos.Y + j));
-
-                totalR += image.GetPixel(newX, newY).R;
-                totalG += image.GetPixel(newX, newY).G;
-                totalB += image.GetPixel(newX, newY).B;
-
-                count++;
-            }
-        }
-
-        return new Color(totalR / count, totalG / count, totalB / count);
+        public float vol { get; set; }
     }
 
     class game { 
