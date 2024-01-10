@@ -164,7 +164,7 @@ partial class sandy {
     }
 
     static void draw(ICanvas canv) {
-        canv.Clear(new Color(44, 45, 53));
+        canv.Clear(new Color(27, 17, 44));
 
         canv.Scale(1, -1);
         canv.DrawTexture(maptex, new Vector2(0, 0), new Vector2(canv.Width, canv.Height), Alignment.BottomLeft);

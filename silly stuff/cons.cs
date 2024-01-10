@@ -6,7 +6,7 @@
     public class dbg {
         static DateTime start = DateTime.Now;
         public static DateTime now = DateTime.Now;
-        public static int frame = 0;
+        public static long frame = 0;
 
         public static void log(string inp) { //returns LOG ( 0 ms ) < fr 0 > ]: inp
             txtcol(ConsoleColor.White);

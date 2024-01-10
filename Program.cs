@@ -38,11 +38,15 @@ partial class Program {
 
     public static bool current = true;
 
+    static Color blac = new Color(27, 17, 44);
+    static Color whit = new Color(255, 247, 255);
+
     static float _vol = 1;
 
     static game[] games = new game[] {
         new game() { dn = "sandy", to = sandy.takeover },
-        new game() { dn = "farmlight", to = farmlight.takeover }
+        new game() { dn = "farmlight", to = farmlight.takeover },
+        new game() { dn = "big steal", to = bigsteal.takeover }
     };
 
     //game running logic
@@ -84,25 +88,25 @@ partial class Program {
     static void makecursor() { 
         for (int x = 0; x < 6; x++) {
             for (int y = 0; y < 6; y++) {
-                cursorblank[x, y] = new Color(0, 0, 0);
+                cursorblank[x, y] = blac;
             }
         }
 
         for (int x = 1; x < 5; x++) {
             for (int y = 1; y < 5; y++) {
-                cursorblank[x, y] = new Color(255, 255, 255);
+                cursorblank[x, y] = whit;
             }
         }
 
-        cursorblank[1, 1] = new Color(0, 0, 0);
-        cursorblank[1, 4] = new Color(0, 0, 0);
-        cursorblank[4, 4] = new Color(0, 0, 0);
-        cursorblank[4, 1] = new Color(0, 0, 0);
+        cursorblank[1, 1] = blac;
+        cursorblank[1, 4] = blac;
+        cursorblank[4, 4] = blac;
+        cursorblank[4, 1] = blac;
 
-        cursorblank[0, 0] = new Color(0, 0, 0, 0);
-        cursorblank[0, 5] = new Color(0, 0, 0, 0);
-        cursorblank[5, 5] = new Color(0, 0, 0, 0);
-        cursorblank[5, 0] = new Color(0, 0, 0, 0);
+        cursorblank[0, 0] = Color.Transparent;
+        cursorblank[0, 5] = Color.Transparent;
+        cursorblank[5, 5] = Color.Transparent;
+        cursorblank[5, 0] = Color.Transparent;
 
         Mouse.SetCursor(cursorblank, Alignment.Center);
     }
@@ -111,6 +115,7 @@ partial class Program {
 
     static void Rend(ICanvas canv) {
         cons.dbg.now = DateTime.Now;
+        cons.dbg.frame += 1;
 
         if (current) {
             draw(canv);
@@ -163,7 +168,7 @@ partial class Program {
     }
 
     static void drawOther(ICanvas canv) {
-        canv.Fill(Color.White);
+        canv.Fill(whit);
         canv.FontSize(24);
         canv.DrawText(!hasUsername? "welcome to vlg" : $"welcome back {_username}", new Vector2(canv.Width / 2, menutitley - smoothyscroll), Alignment.Center);
 
@@ -284,9 +289,9 @@ partial class Program {
         canv.Clear(new Color(14, 14, 15));
 
         Gradient bgGradU = new LinearGradient(canv.Width / 2f, -smoothyscroll, canv.Width / 2f,
-            canv.Height - smoothyscroll, new Color[] { new Color(34, 35, 36), new Color(14, 14, 15) });
+            canv.Height - smoothyscroll, new Color[] { new Color(84, 62, 84), new Color(65, 48, 71) });
         Gradient bgGradB = new LinearGradient(canv.Width / 2f, -smoothyscroll + canv.Height, canv.Width / 2f,
-            canv.Height - smoothyscroll + canv.Height, new Color[] { new Color(14, 14, 15), new Color(8, 8, 8) });
+            canv.Height - smoothyscroll + canv.Height, new Color[] { new Color(65, 48, 71), blac });
 
         canv.Fill(bgGradU);
         canv.DrawRect(new Vector2(0, -smoothyscroll), new Vector2(canv.Width, canv.Height));
