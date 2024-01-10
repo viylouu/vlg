@@ -1,0 +1,32 @@
+sandy
+
+--------------------------------------------------------------------------------------------------------
+
+to add a new cell, go to the sandy folder and copy one of the cell's
+json file and name it whatever your cell is, then, open the json
+file and edit the values, then, when you load the game, it should
+load your new cell and you should be good to go!
+
+--------------------------------------------------------------------------------------------------------
+
+big steal 
+
+--------------------------------------------------------------------------------------------------------
+
+to add a new car, make a png file with a 16x16 size per tile, 
+then layout each tile horizontally and make it spritestacked, 
+it can be as tall as you want as that will be handled in code.
+you can also make your car models inside of a voxel editor,
+and convert them into a spritestacked image. just make sure
+that the base size is 16x16, this is very important as it will
+not work otherwise. finally, move the png file into the big steal
+folder. now that you have the sprite, you need to make the json 
+data for the car, which is the really easy bit. first, you need to
+copy the json file for any car or just load the game with your sprite
+loaded into the files for big steal, then you want to open it. you now
+just need to edit all of the parameters, and name it, the name
+of your "png file name here" data, so if my png file was called
+big blue chungus, the json file would be called big blue chungus
+data.json, you should now be able to use your car ingame!
+
+--------------------------------------------------------------------------------------------------------
