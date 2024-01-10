@@ -2,7 +2,7 @@
 
     INFO
 
-    this game was made in 1 hr as requested by Lucas-Code
+    this game was made in 45 mins as requested by Lucas-Code
     it was not very hard to make and the main gameplay
     only took around 30 mins, so half of the time was
     spent on polishing. so yeah!
@@ -13,7 +13,6 @@ using SimulationFramework;
 using SimulationFramework.Drawing;
 using SimulationFramework.Input;
 using System.Numerics;
-using System.Xml.Linq;
 
 partial class clicky {
     static int score = 0;
