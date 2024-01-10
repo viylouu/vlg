@@ -5,8 +5,14 @@ using SimulationFramework.Drawing;
 using SimulationFramework.Input;
 using System.Numerics;
 
-Simulation sim = Simulation.Create(Init, Rend);
-sim.Run(new DesktopPlatform());
+try {
+    Simulation sim = Simulation.Create(Init, Rend);
+    sim.Run(new DesktopPlatform());
+}
+catch (Exception ex) {
+    Console.WriteLine(ex.Message);
+    Console.ReadKey();
+}
 
 partial class Program {
     static int yscroll = 0;
