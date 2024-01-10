@@ -168,7 +168,7 @@ partial class sandy {
 
             ImGui.Checkbox("fixed upd", ref wu);
 
-            ImGui.SliderInt("ppu", ref divof1920, 1, 32);
+            ImGui.SliderInt("ppu", ref divof1920, 1, 10);
 
             if (ImGui.Button("apply ppu")) {
                 int width = 1920 / divof1920, height = 1080 / divof1920;
