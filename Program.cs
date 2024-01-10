@@ -145,7 +145,7 @@ partial class Program {
 
     static void audio() {
         if (ambientPlayback.IsStopped) 
-        { ambientPlayback = ambience.Play(); }
+            ambientPlayback = ambience.Play();
 
         if (stscroll != (int)Mouse.ScrollWheelDelta && hasUsername) { 
             stscroll = (int)Mouse.ScrollWheelDelta;
@@ -153,7 +153,7 @@ partial class Program {
         }
 
         if (Keyboard.PressedKeys.Any() || Mouse.IsButtonPressed(MouseButton.Left) || Mouse.IsButtonPressed(MouseButton.Right) || Mouse.IsButtonPressed(MouseButton.Middle)) 
-        { click.Play(); }
+            click.Play();
     }
 
     static void drawGames(ICanvas canv) {
@@ -208,7 +208,7 @@ partial class Program {
             ImGui.SliderFloat("volume", ref _vol, 0, 1);
 
             if (__vol2 != _vol)
-            { Audio.MasterVolume = _vol; }
+                Audio.MasterVolume = _vol;
 
             if (ImGui.Button("save")) {
                 userData userdata = new userData() {
@@ -247,7 +247,7 @@ partial class Program {
         ImGui.SliderFloat("volume", ref _vol, 0, 1);
 
         if (__vol != _vol)
-        { Audio.MasterVolume = _vol; }
+            Audio.MasterVolume = _vol;
 
         if (ImGui.Button("save")) {
             userData userdata = new userData() {
@@ -267,9 +267,8 @@ partial class Program {
 
         string path = Directory.GetCurrentDirectory() + @"\Assets\Saves\userdata.json";
 
-        using (StreamWriter sw = new StreamWriter(path)) {
+        using (StreamWriter sw = new StreamWriter(path)) 
             sw.Write(serObj);
-        }
     }
 
     static void vars() {

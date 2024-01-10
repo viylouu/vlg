@@ -53,9 +53,7 @@ partial class sandy {
             string content = null;
 
             using (StreamReader sr = new StreamReader(path))
-            {
                 content = sr.ReadToEnd();
-            }
 
             cell cellgot = Newtonsoft.Json.JsonConvert.DeserializeObject<cell>(content);
             cells[i] = cellgot;
@@ -73,7 +71,7 @@ partial class sandy {
         Rectangle bounds = new(0, 0, Window.Width - 1, Window.Height - 1);
 
         if (Mouse.IsButtonDown(MouseButton.Left)) {
-            if (bounds.ContainsPoint(mp)) {
+            if (bounds.ContainsPoint(mp))
                 if (map[(int)mp.X, (int)(Window.Height - mp.Y)] == null && mc == 1) {
                     map[(int)mp.X, (int)(Window.Height - mp.Y)] = cells[sel];
 
@@ -83,18 +81,14 @@ partial class sandy {
 
                     return;
                 }
-            }
 
-            for (int x = -(int)mcs / 2; x < mcs / 2; x++) {
-                for (int y = -(int)mcs / 2; y < mcs / 2; y++) {
-                    if (bounds.ContainsPoint(new Vector2((int)mp.X + x, (int)(Window.Height - mp.Y) + y))) {
+            for (int x = -(int)mcs / 2; x < mcs / 2; x++)
+                for (int y = -(int)mcs / 2; y < mcs / 2; y++)
+                    if (bounds.ContainsPoint(new Vector2((int)mp.X + x, (int)(Window.Height - mp.Y) + y)))
                         if (map[(int)mp.X + x, (int)(Window.Height - mp.Y) + y] == null) {
                             map[(int)mp.X + x, (int)(Window.Height - mp.Y) + y] = cells[sel];
 
                             maptex.GetPixel((int)mp.X + x, (int)(Window.Height - mp.Y) + y) = coltocol(cells[sel].col);
-                        }
-                    }
-                }
             }
 
             maptex.ApplyChanges();
@@ -113,18 +107,15 @@ partial class sandy {
                 }
             }
 
-            for (int x = -(int)mcs / 2; x < mcs / 2; x++) {
-                for (int y = -(int)mcs / 2; y < mcs / 2; y++) {
-                    if (bounds.ContainsPoint(new Vector2((int)mp.X + x, (int)(Window.Height - mp.Y) + y))) {
+            for (int x = -(int)mcs / 2; x < mcs / 2; x++)
+                for (int y = -(int)mcs / 2; y < mcs / 2; y++)
+                    if (bounds.ContainsPoint(new Vector2((int)mp.X + x, (int)(Window.Height - mp.Y) + y)))
                         if (map[(int)mp.X + x, (int)(Window.Height - mp.Y) + y] != null) {
                             map[(int)mp.X + x, (int)(Window.Height - mp.Y) + y] = null;
 
                             maptex.GetPixel((int)mp.X + x, (int)(Window.Height - mp.Y) + y) = Color.Transparent;
-                        }
-                    }
-                }
             }
-
+                   
             maptex.ApplyChanges();
         }
     }
@@ -142,7 +133,8 @@ partial class sandy {
         
         mcs += m.twn(mcs, Mouse.IsButtonDown(MouseButton.Left) || Mouse.IsButtonDown(MouseButton.Middle) || Keyboard.IsKeyDown(Key.LeftControl) ? mc : 1, 4);
 
-        if (!wu) { process(); } 
+        if (!wu) 
+            process();
         else {
             time -= Time.DeltaTime;
 
@@ -168,7 +160,8 @@ partial class sandy {
             maptex = Graphics.CreateTexture(Window.Width, Window.Height);
         }
 
-        if (Keyboard.IsKeyPressed(Key.Tab)) { settings = !settings; }
+        if (Keyboard.IsKeyPressed(Key.Tab)) 
+            settings = !settings;
 
         if (settings) {
             ImGui.Begin("settings");
@@ -220,87 +213,72 @@ partial class sandy {
 
                                 if (dir == 2) { dir = 1; }
 
-                                if (dir == 0) {
-                                    if (x > 0) {
+                                if (dir == 0)
+                                    if (x > 0)
                                         if (map[x - 1, y] == null) {
                                             movecell(ref upd, -1, 0, x, y, ref cellupd, false);
                                             continue;
                                         } else { dir = 1; }
-                                    }
-                                }
 
-                                if (dir == 1) { 
-                                    if (x > map.GetLength(0) - 1) {
+                                if (dir == 1) 
+                                    if (x > map.GetLength(0) - 1)
                                         if (map[x + 1, y] == null) {
                                             movecell(ref upd, 1, 0, x, y, ref cellupd, false);
                                             continue;
                                         } else { dir = 0; }
-                                    }
-                                }
 
-                                if (dir == 0) {
-                                    if (x > 0) {
+                                if (dir == 0)
+                                    if (x > 0)
                                         if (map[x - 1, y] == null) {
                                             movecell(ref upd, -1, 0, x, y, ref cellupd, false);
                                             continue;
-                                        }
-                                    }
                                 }
-
                             }
                         }
 
-                        if (y > 0) {
+                        if (y > 0)
                             if (map[x, y - 1] == null) {
                                 movecell(ref upd, 0, -1, x, y, ref cellupd, false);
                                 continue;
-                            }
                         }
 
-                        if (y > 0 && x > 0) {
+                        if (y > 0 && x > 0)
                             if (map[x - 1, y - 1] == null && map[x - 1, y] == null) {
                                 movecell(ref upd, -1, -1, x, y, ref cellupd, false);
                                 continue;
                             }
-                        }
 
-                        if (y > 0 && x < map.GetLength(0) - 1) {
+                        if (y > 0 && x < map.GetLength(0) - 1)
                             if (map[x + 1, y - 1] == null && map[x + 1, y] == null) {
                                 movecell(ref upd, 1, -1, x, y, ref cellupd, false);
                                 continue;
                             }
-                        }
 
                         if (map[x, y].liquid || map[x, y].spreadinair) {
                             int dir = m.rando(0, 2);
 
-                            if (dir == 2) { dir = 1; }
+                            if (dir == 2) 
+                                dir = 1;
 
-                            if (dir == 0) {
-                                if (x > 0) {
+                            if (dir == 0)
+                                if (x > 0)
                                     if (map[x - 1, y] == null) {
                                         movecell(ref upd, -1, 0, x, y, ref cellupd, false);
                                         continue;
                                     } else { dir = 1; }
-                                }
-                            }
 
-                            if (dir == 1) { 
-                                if (x > map.GetLength(0) - 1) {
+                            if (dir == 1)
+                                if (x > map.GetLength(0) - 1)
                                     if (map[x + 1, y] == null) {
                                         movecell(ref upd, 1, 0, x, y, ref cellupd, false);
                                         continue;
                                     } else { dir = 0; }
-                                }
-                            }
 
-                            if (dir == 0) {
-                                if (x > 0) {
+                            if (dir == 0)
+                                if (x > 0)
                                     if (map[x - 1, y] == null) {
                                         movecell(ref upd, -1, 0, x, y, ref cellupd, false);
                                         continue;
-                                    }
-                                }
                             }
 
                         }
@@ -310,7 +288,8 @@ partial class sandy {
             }
         }
 
-        if (upd) { maptex.ApplyChanges(); }
+        if (upd) 
+            maptex.ApplyChanges();
     }
 
     static void movecell(ref bool upd, int x, int y, int curx, int cury, ref bool[,] cellupd, bool swap) { 

@@ -40,9 +40,8 @@ partial class bigsteal {
             if(Path.Exists(path)) {
                 string content = null;
 
-                using (StreamReader sr = new StreamReader(path)) {
+                using (StreamReader sr = new StreamReader(path))
                     content = sr.ReadToEnd();
-                }
 
                 jsondata datagot = Newtonsoft.Json.JsonConvert.DeserializeObject<jsondata>(content);
                 cardatas[i].data = datagot;
@@ -51,9 +50,8 @@ partial class bigsteal {
 
                 string content = Newtonsoft.Json.JsonConvert.SerializeObject(dataser);
 
-                using (StreamWriter sw = new StreamWriter(path)) {
+                using (StreamWriter sw = new StreamWriter(path))
                     sw.Write(content);
-                }
 
                 cardatas[i].data = dataser;
             }
