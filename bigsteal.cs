@@ -35,26 +35,34 @@ partial class bigsteal {
 
             cars[i].type = cardatas[i];
 
-            string content = null;
-
             string path = Directory.GetCurrentDirectory() + @$"\Assets\Big Steal\{cardatas[i].name + " data"}.json";
 
-            using (StreamReader sr = new StreamReader(path)) {
-                content = sr.ReadToEnd();
+            if(Path.Exists(path)) {
+                string content = null;
+
+                using (StreamReader sr = new StreamReader(path)) {
+                    content = sr.ReadToEnd();
+                }
+
+                jsondata datagot = Newtonsoft.Json.JsonConvert.DeserializeObject<jsondata>(content);
+                cardatas[i].data = datagot;
+            } else {
+                jsondata dataser = new jsondata();
+
+                string content = Newtonsoft.Json.JsonConvert.SerializeObject(dataser);
+
+                using (StreamWriter sw = new StreamWriter(path)) {
+                    sw.Write(content);
+                }
+
+                cardatas[i].data = dataser;
             }
 
-            jsondata datagot = Newtonsoft.Json.JsonConvert.DeserializeObject<jsondata>(content);
-            cardatas[i].data = datagot;
+            //cars[i].idlesound = Audio.LoadSound(@"Assets\Big Steal\enginesound.wav");
+            //cars[i].idlesoundpb = cars[i].idlesound.Play();
 
             cons.dbg.log("LOADED CAR: " + cardatas[i].name);
         }
-
-        jsondata data = new jsondata();
-        data.maxspeed = 0;
-        data.friction = 0;
-        data.accel = 0;
-        data.deccel = 0;
-        data.maxhp = 0;
 
         Simulation.SetFixedResolution(640, 360, Color.Black, false, false, false);
     }
@@ -88,15 +96,23 @@ partial class bigsteal {
 
             cars[i].rot += Time.DeltaTime * 30;
             cars[i].rot = cars[i].rot % 360;
+
+            //if (cars[i].idlesoundpb.IsStopped) {
+            //    cars[i].idlesoundpb = cars[i].idlesound.Play();
+            //}
         }
     }
 
     class jsondata { 
         public float maxspeed { get; set; }
+        public float turnspeed { get; set; }
         public float friction { get; set; }
         public float accel { get; set; }
         public float deccel { get; set; }
-        public int maxhp { get; set; }
+        public float turnaccel { get; set; }
+        public float turndeccel { get; set; }
+        public float armor { get; set; }
+        public int cost { get; set; }
     }
 
     class cardata { 
@@ -109,5 +125,7 @@ partial class bigsteal {
     class car { 
         public cardata type { get; set; }
         public float rot { get; set; }
+        public ISound idlesound { get; set; }
+        public SoundPlayback idlesoundpb { get; set; }
     }
 }

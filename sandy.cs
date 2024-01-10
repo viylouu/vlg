@@ -3,6 +3,8 @@ using NAudio.Wave;
 using SimulationFramework;
 using SimulationFramework.Drawing;
 using SimulationFramework.Input;
+using System.Data;
+using System.IO;
 using System.Numerics;
 
 partial class sandy {
@@ -26,6 +28,8 @@ partial class sandy {
 
     static bool wu = true;
 
+    static int divof1920 = 3;
+
     public static void takeover() {
         Program.curUpdate = () => Rend(Program.curCanv);
         Program.current = false;
@@ -36,16 +40,28 @@ partial class sandy {
     static void Init() {
         mp = Mouse.Position;
 
-        int width = 640, height = 360;
+        int width = 1920 / divof1920, height = 1080 / divof1920;
         Simulation.SetFixedResolution(width, height, Color.Black, false, false, false);
         map = new cell[width, height];
         maptex = Graphics.CreateTexture(width, height);
 
-        cells = new cell[] { 
-            sandycells.sand,
-            sandycells.water,
-            sandycells.stone
-        };
+        cells = new cell[Directory.GetFiles(Directory.GetCurrentDirectory() + @"\Assets\Sandy\", "*.json").Length];
+
+        for (int i = 0; i < cells.Length; i++) {
+            string path = Directory.GetFiles(Directory.GetCurrentDirectory() + @"\Assets\Sandy\", "*.json")[i];
+
+            string content = null;
+
+            using (StreamReader sr = new StreamReader(path))
+            {
+                content = sr.ReadToEnd();
+            }
+
+            cell cellgot = Newtonsoft.Json.JsonConvert.DeserializeObject<cell>(content);
+            cells[i] = cellgot;
+
+            cons.dbg.log("CELL LOADED: " + cellgot.name);
+        }
     }
 
     public static void Rend(ICanvas canv) {
@@ -61,7 +77,7 @@ partial class sandy {
                 if (map[(int)mp.X, (int)(Window.Height - mp.Y)] == null && mc == 1) {
                     map[(int)mp.X, (int)(Window.Height - mp.Y)] = cells[sel];
 
-                    maptex.GetPixel((int)mp.X, (int)(Window.Height - mp.Y)) = cells[sel].col;
+                    maptex.GetPixel((int)mp.X, (int)(Window.Height - mp.Y)) = coltocol(cells[sel].col);
 
                     maptex.ApplyChanges();
 
@@ -75,7 +91,7 @@ partial class sandy {
                         if (map[(int)mp.X + x, (int)(Window.Height - mp.Y) + y] == null) {
                             map[(int)mp.X + x, (int)(Window.Height - mp.Y) + y] = cells[sel];
 
-                            maptex.GetPixel((int)mp.X + x, (int)(Window.Height - mp.Y) + y) = cells[sel].col;
+                            maptex.GetPixel((int)mp.X + x, (int)(Window.Height - mp.Y) + y) = coltocol(cells[sel].col);
                         }
                     }
                 }
@@ -159,6 +175,16 @@ partial class sandy {
 
             ImGui.Checkbox("fixed upd", ref wu);
 
+            ImGui.SliderInt("ppu", ref divof1920, 1, 32);
+
+            if (ImGui.Button("apply ppu")) {
+                int width = 1920 / divof1920, height = 1080 / divof1920;
+                Simulation.SetFixedResolution(width, height, Color.Black, false, false, false);
+                map = new cell[width, height];
+                maptex.Dispose();
+                maptex = Graphics.CreateTexture(width, height);
+            }
+
             ImGui.End();
         }
     }
@@ -188,6 +214,42 @@ partial class sandy {
                 if (map[x, y] != null && cellupd[x, y] == false) {
                     if (map[x, y].move) {
 
+                        if (m.rando(0, 10) == 0) { 
+                            if (map[x, y].spreadinair) {
+                                int dir = m.rando(0, 2);
+
+                                if (dir == 2) { dir = 1; }
+
+                                if (dir == 0) {
+                                    if (x > 0) {
+                                        if (map[x - 1, y] == null) {
+                                            movecell(ref upd, -1, 0, x, y, ref cellupd, false);
+                                            continue;
+                                        } else { dir = 1; }
+                                    }
+                                }
+
+                                if (dir == 1) { 
+                                    if (x > map.GetLength(0) - 1) {
+                                        if (map[x + 1, y] == null) {
+                                            movecell(ref upd, 1, 0, x, y, ref cellupd, false);
+                                            continue;
+                                        } else { dir = 0; }
+                                    }
+                                }
+
+                                if (dir == 0) {
+                                    if (x > 0) {
+                                        if (map[x - 1, y] == null) {
+                                            movecell(ref upd, -1, 0, x, y, ref cellupd, false);
+                                            continue;
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+
                         if (y > 0) {
                             if (map[x, y - 1] == null) {
                                 movecell(ref upd, 0, -1, x, y, ref cellupd, false);
@@ -209,7 +271,7 @@ partial class sandy {
                             }
                         }
 
-                        if (map[x, y].liquid) {
+                        if (map[x, y].liquid || map[x, y].spreadinair) {
                             int dir = m.rando(0, 2);
 
                             if (dir == 2) { dir = 1; }
@@ -261,18 +323,29 @@ partial class sandy {
         if(swap)
             cellupd[curx, cury] = true;
 
-        maptex.GetPixel(curx, cury) = swap? map[curx, cury].col : Color.Transparent;
-        maptex.GetPixel(curx + x, cury + y) = map[curx + x, cury + y].col;
+        maptex.GetPixel(curx, cury) = swap? coltocol(map[curx, cury].col) : Color.Transparent;
+        maptex.GetPixel(curx + x, cury + y) = coltocol(map[curx + x, cury + y].col);
 
         upd = true;
     }
 
+    static Color coltocol(col clr) {
+        return new Color(clr.r, clr.g, clr.b);
+    }
+
     public class cell { 
-        public Color col { get; set; }
+        public col col { get; set; }
         public string name { get; set; }
 
         //rules
         public bool move { get; set; }
         public bool liquid { get; set; }
+        public bool spreadinair { get; set; }
+    }
+
+    public class col { 
+        public byte r { get; set; }
+        public byte g { get; set; }
+        public byte b { get; set; }
     }
 }
