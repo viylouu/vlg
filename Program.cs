@@ -52,7 +52,8 @@ partial class Program {
     static game[] games = new game[] {
         new game() { dn = "sandy", to = sandy.takeover },
         new game() { dn = "farmlight", to = farmlight.takeover },
-        new game() { dn = "big steal", to = bigsteal.takeover }
+        new game() { dn = "big steal", to = bigsteal.takeover },
+        new game() { dn = "clicky", to = clicky.takeover }
     };
 
     //game running logic
