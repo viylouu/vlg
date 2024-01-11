@@ -1,1 +1,13 @@
-{"col":{"r":84,"g":62,"b":84},"name":"stone","move":false,"liquid":false,"spreadinair":false}
+{
+
+	"col": {
+		"r":84,
+		"g":62,
+		"b":84
+	},
+
+	"name":"stone",
+	"move":false,
+	"liquid":false,
+	"spreadinair":false
+}

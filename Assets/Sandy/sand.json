@@ -1,1 +1,12 @@
-{"col":{"r":247,"g":208,"b":118},"name":"sand","move":true,"liquid":false,"spreadinair":false}
+{
+	"col": {
+		"r":247,
+		"g":208,
+		"b":118
+	},
+
+	"name":"sand",
+	"move":true,
+	"liquid":false,
+	"spreadinair":false
+}
