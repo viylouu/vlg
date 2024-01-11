@@ -68,7 +68,8 @@ partial class bigsteal {
     static void Rend(ICanvas canv) {
         canv.Clear(Color.Black);
 
-        if (Mouse.IsButtonDown(MouseButton.Left)) { camp -= Mouse.DeltaPosition; }
+        if (Mouse.IsButtonDown(MouseButton.Left)) 
+            camp -= Mouse.DeltaPosition;
 
         for (int i = 0; i < cars.Length; i++) {
             for (int l = 0; l < cars[i].type.tex.Width / 16; l++) {
