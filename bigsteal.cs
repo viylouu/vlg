@@ -11,6 +11,16 @@ partial class bigsteal {
 
     static Vector2 camp = Vector2.Zero;
 
+    static string[,] map = new string[,] {
+        { "r","r","r" },
+        { "r","f","r" },
+        { "r","r","r" }
+    };
+
+    static ITexture maptex = null;
+
+    static ITexture tiles = Graphics.LoadTexture(@"Assets\Big Steal\stuff\tilemap.png");
+
     public static void takeover() {
         Program.curUpdate = () => Rend(Program.curCanv);
         Program.current = false;
@@ -62,6 +72,8 @@ partial class bigsteal {
             cons.dbg.log("LOADED CAR: " + cardatas[i].name);
         }
 
+        loadmap();
+
         Simulation.SetFixedResolution(640, 360, Color.Black, false, false, false);
     }
 
@@ -70,6 +82,8 @@ partial class bigsteal {
 
         if (Mouse.IsButtonDown(MouseButton.Left)) 
             camp -= Mouse.DeltaPosition;
+
+        //canv.DrawTexture(maptex, -camp, new Vector2(maptex.Width, maptex.Height));
 
         for (int i = 0; i < cars.Length; i++) {
             for (int l = 0; l < cars[i].type.tex.Width / 16; l++) {
@@ -100,6 +114,20 @@ partial class bigsteal {
             //    cars[i].idlesoundpb = cars[i].idlesound.Play();
             //}
         }
+    }
+
+    static void loadmap() {
+        for (int x = 0; x < map.GetLength(0); x++) {
+            for (int y = 0; y < map.GetLength(1); y++) {
+                if (map[x, y] == "r")
+                { }
+                    
+            }
+        }
+    }
+
+    static void puttileontex(Rectangle source) { 
+        
     }
 
     class jsondata { 

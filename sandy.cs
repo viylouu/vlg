@@ -6,6 +6,7 @@ using SimulationFramework.Input;
 using System.Data;
 using System.IO;
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 partial class sandy {
     static Vector2 mp = new Vector2(0, 0);
@@ -43,6 +44,7 @@ partial class sandy {
         int width = 1920 / divof1920, height = 1080 / divof1920;
         Simulation.SetFixedResolution(width, height, Color.Black, false, false, false);
         map = new cell[width, height];
+
         maptex = Graphics.CreateTexture(width, height);
 
         cells = new cell[Directory.GetFiles(Directory.GetCurrentDirectory() + @"\Assets\Sandy\", "*.json").Length];
@@ -174,6 +176,7 @@ partial class sandy {
                 int width = 1920 / divof1920, height = 1080 / divof1920;
                 Simulation.SetFixedResolution(width, height, Color.Black, false, false, false);
                 map = new cell[width, height];
+
                 maptex.Dispose();
                 maptex = Graphics.CreateTexture(width, height);
             }
@@ -202,94 +205,92 @@ partial class sandy {
 
         cellupd = new bool[map.GetLength(0), map.GetLength(1)];
 
-        for (int x = 0; x < map.GetLength(0); x++) {
-            for (int y = 0; y < map.GetLength(1); y++) {
-                if (map[x, y] != null && cellupd[x, y] == false) {
-                    if (map[x, y].move) {
-
-                        if (m.rando(0, 10) == 0) { 
-                            if (map[x, y].spreadinair) {
-                                int dir = m.rando(0, 2);
-
-                                if (dir == 2) { dir = 1; }
-
-                                if (dir == 0)
-                                    if (x > 0)
-                                        if (map[x - 1, y] == null) {
-                                            movecell(ref upd, -1, 0, x, y, ref cellupd, false);
-                                            continue;
-                                        } else { dir = 1; }
-
-                                if (dir == 1) 
-                                    if (x > map.GetLength(0) - 1)
-                                        if (map[x + 1, y] == null) {
-                                            movecell(ref upd, 1, 0, x, y, ref cellupd, false);
-                                            continue;
-                                        } else { dir = 0; }
-
-                                if (dir == 0)
-                                    if (x > 0)
-                                        if (map[x - 1, y] == null) {
-                                            movecell(ref upd, -1, 0, x, y, ref cellupd, false);
-                                            continue;
-                                }
-                            }
-                        }
-
-                        if (y > 0)
-                            if (map[x, y - 1] == null) {
-                                movecell(ref upd, 0, -1, x, y, ref cellupd, false);
-                                continue;
-                        }
-
-                        if (y > 0 && x > 0)
-                            if (map[x - 1, y - 1] == null && map[x - 1, y] == null) {
-                                movecell(ref upd, -1, -1, x, y, ref cellupd, false);
-                                continue;
-                            }
-
-                        if (y > 0 && x < map.GetLength(0) - 1)
-                            if (map[x + 1, y - 1] == null && map[x + 1, y] == null) {
-                                movecell(ref upd, 1, -1, x, y, ref cellupd, false);
-                                continue;
-                            }
-
-                        if (map[x, y].liquid || map[x, y].spreadinair) {
-                            int dir = m.rando(0, 2);
-
-                            if (dir == 2) 
-                                dir = 1;
-
-                            if (dir == 0)
-                                if (x > 0)
-                                    if (map[x - 1, y] == null) {
-                                        movecell(ref upd, -1, 0, x, y, ref cellupd, false);
-                                        continue;
-                                    } else { dir = 1; }
-
-                            if (dir == 1)
-                                if (x > map.GetLength(0) - 1)
-                                    if (map[x + 1, y] == null) {
-                                        movecell(ref upd, 1, 0, x, y, ref cellupd, false);
-                                        continue;
-                                    } else { dir = 0; }
-
-                            if (dir == 0)
-                                if (x > 0)
-                                    if (map[x - 1, y] == null) {
-                                        movecell(ref upd, -1, 0, x, y, ref cellupd, false);
-                                        continue;
-                            }
-
-                        }
-
-                    }
-                }
-            }
-        }
+        for (int x = 0; x < map.GetLength(0); x++)
+            for (int y = 0; y < map.GetLength(1); y++)
+                processstuff(x, y, ref upd);
 
         if (upd) 
             maptex.ApplyChanges();
+    }
+
+    static void processstuff(int x, int y, ref bool upd) {
+        if (map[x, y] != null && cellupd[x, y] == false)
+        {
+            if (map[x, y].move)
+            {
+
+                if (m.rando(0, 10) == 0)
+                {
+                    if (map[x, y].spreadinair)
+                    {
+                        int dir = m.rando(0, 2);
+
+                        if (dir == 2) 
+                            dir = 1;
+
+                        if (dir == 0)
+                            if (x > 0)
+                                if (map[x - 1, y] == null)
+                                    movecell(ref upd, -1, 0, x, y, ref cellupd, false);
+                                else 
+                                    dir = 1;
+
+                        if (dir == 1)
+                            if (x > map.GetLength(0) - 1)
+                                if (map[x + 1, y] == null)
+                                    movecell(ref upd, 1, 0, x, y, ref cellupd, false);
+                                else 
+                                    dir = 0;
+
+                        if (dir == 0)
+                            if (x > 0)
+                                if (map[x - 1, y] == null)
+                                    movecell(ref upd, -1, 0, x, y, ref cellupd, false);
+                    }
+                }
+
+                if (y > 0)
+                    if (map[x, y - 1] == null)
+                        movecell(ref upd, 0, -1, x, y, ref cellupd, false);
+
+                if (y > 0 && x > 0)
+                    if (map[x - 1, y - 1] == null && map[x - 1, y] == null)
+                        movecell(ref upd, -1, -1, x, y, ref cellupd, false);
+
+                if (y > 0 && x < map.GetLength(0) - 1)
+                    if (map[x + 1, y - 1] == null && map[x + 1, y] == null)
+                        movecell(ref upd, 1, -1, x, y, ref cellupd, false);
+
+                if (map[x, y].liquid || map[x, y].spreadinair)
+                {
+                    int dir = m.rando(0, 2);
+
+                    if (dir == 2)
+                        dir = 1;
+
+                    if (dir == 0)
+                        if (x > 0)
+                            if (map[x - 1, y] == null)
+                                movecell(ref upd, -1, 0, x, y, ref cellupd, false);
+                            else 
+                                dir = 1;
+
+                    if (dir == 1)
+                        if (x > map.GetLength(0) - 1)
+                            if (map[x + 1, y] == null)
+                                movecell(ref upd, 1, 0, x, y, ref cellupd, false);
+                            else 
+                                dir = 0;
+
+                    if (dir == 0)
+                        if (x > 0)
+                            if (map[x - 1, y] == null)
+                                movecell(ref upd, -1, 0, x, y, ref cellupd, false);
+
+                }
+
+            }
+        }
     }
 
     static void movecell(ref bool upd, int x, int y, int curx, int cury, ref bool[,] cellupd, bool swap) { 
