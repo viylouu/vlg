@@ -26,6 +26,7 @@ partial class Program {
 
     static ISound click = Audio.LoadSound(@"Assets\Menu\click.wav");
     static ISound scroll = Audio.LoadSound(@"Assets\Menu\scroll.wav");
+    //static ISound type = Audio.LoadSound(@"Assets\Menu\type.wav");
 
     static int stscroll = 0;
 
@@ -53,12 +54,19 @@ partial class Program {
         new game() { dn = "sandy", to = sandy.takeover },
         new game() { dn = "farmlight", to = farmlight.takeover },
         new game() { dn = "big steal", to = bigsteal.takeover },
-        new game() { dn = "clicky", to = clicky.takeover }
+        new game() { dn = "clicky", to = clicky.takeover },
+        new game() { dn = "ball bounce", to = ballbounce.takeover }
     };
 
     //game running logic
     public static Action curUpdate = null;
     public static ICanvas curCanv = null;
+
+    static string welcome = null;
+    static string welcomeprog = null;
+    static int welcomeidx = 0;
+    static float welcomeupdfps = 1 / 12f;
+    static float welcomeupdp = welcomeupdfps;
 
     static void load() {
         windowdims = new Vector2(ImGui.GetMainViewport().Size.X, ImGui.GetMainViewport().Size.Y);
@@ -72,6 +80,8 @@ partial class Program {
         loaddata();
 
         Audio.MasterVolume = _vol;
+
+        welcome = !hasUsername ? "welcome to vlg" : $"welcome back {_username}";
 
         makecursor();
 
@@ -152,8 +162,11 @@ partial class Program {
             scroll.Play();
         }
 
-        if (Keyboard.PressedKeys.Any() || Mouse.IsButtonPressed(MouseButton.Left) || Mouse.IsButtonPressed(MouseButton.Right) || Mouse.IsButtonPressed(MouseButton.Middle)) 
+        if (Mouse.IsButtonPressed(MouseButton.Left) || Mouse.IsButtonPressed(MouseButton.Right) || Mouse.IsButtonPressed(MouseButton.Middle)) 
             click.Play();
+
+        //if(Keyboard.PressedKeys.Any())
+        //    type.Play();
     }
 
     static void drawGames(ICanvas canv) {
@@ -163,7 +176,7 @@ partial class Program {
         ImGui.SetWindowPos(new Vector2(windowdims.X / 2 - 336 / 2f, windowdims.Y * 1.45f - smoothyscrollACT));
 
         for (int i = 0; i < games.Length; i++) {
-            if (i % 5 != 0)
+            if (i % 4 != 0)
                 ImGui.SameLine();
             if (ImGui.Button(games[i].dn))
                 games[i].to();
@@ -175,9 +188,18 @@ partial class Program {
     }
 
     static void drawOther(ICanvas canv) {
+        welcomeupdp -= Time.DeltaTime;
+
+        if (welcomeupdp <= 0) {
+            welcomeupdp = welcomeupdfps;
+
+            if (welcomeidx < welcome.Length)
+            { welcomeprog += welcome[welcomeidx]; welcomeidx++; /*type.Play();*/ }
+        }
+
         canv.Fill(whit);
         canv.FontSize(24);
-        canv.DrawText(!hasUsername? "welcome to vlg" : $"welcome back {_username}", new Vector2(canv.Width / 2, menutitley - smoothyscroll), Alignment.Center);
+        canv.DrawText(welcomeprog, new Vector2(canv.Width / 2, menutitley - smoothyscroll), Alignment.Center);
 
         //cursor
         canv.DrawCircle(new Vector2(mousepos1.X, mousepos1.Y - smoothyscroll), 8, Alignment.Center);
