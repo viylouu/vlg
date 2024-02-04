@@ -55,7 +55,8 @@ partial class Program {
         new game() { dn = "farmlight", to = farmlight.takeover },
         new game() { dn = "big steal", to = bigsteal.takeover },
         new game() { dn = "clicky", to = clicky.takeover },
-        new game() { dn = "ball bounce", to = ballbounce.takeover }
+        new game() { dn = "ball bounce", to = ballbounce.takeover },
+        new game() { dn = "ruok", to = ruok.takeover }
     };
 
     //game running logic
