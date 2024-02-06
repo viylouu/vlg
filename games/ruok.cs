@@ -1,5 +1,6 @@
 ﻿using SimulationFramework;
 using SimulationFramework.Drawing;
+using SimulationFramework.Input;
 using System.IO;
 using System.Numerics;
 
@@ -8,6 +9,14 @@ partial class ruok {
     static weap[] weaps = Array.Empty<weap>();
 
     static ITexture tex = Graphics.LoadTexture(@"Assets\Ruok\tiles.png");
+
+    static float wdir = 0;
+    static float wdap = 0;
+    static bool wd = false;
+
+    static Vector2 charposWP;
+    static Vector2 charposSP;
+    static Vector2 campos;
 
     public static void takeover() {
         Program.curUpdate = () => Rend(Program.curCanv);
@@ -22,8 +31,7 @@ partial class ruok {
         weaps = new weap[Directory.GetFiles(Directory.GetCurrentDirectory() + @"\Assets\Ruok\weaps\", "*.json").Length];
 
         string[] weaponFilePaths = Directory.GetFiles(Directory.GetCurrentDirectory() + @"\Assets\Ruok\weaps\", "*.json");
-        for (int w = 0; w < weaps.Length; w++)
-        {
+        for (int w = 0; w < weaps.Length; w++) {
             string content = null;
 
             string name = Path.GetFileNameWithoutExtension(weaponFilePaths[w]);
@@ -40,8 +48,7 @@ partial class ruok {
         chars = new chr[Directory.GetFiles(Directory.GetCurrentDirectory() + @"\Assets\Ruok\chars\", "*.json").Length];
 
         string[] characterFilePaths = Directory.GetFiles(Directory.GetCurrentDirectory() + @"\Assets\Ruok\chars\", "*.json");
-        for (int c = 0; c < chars.Length; c++)
-        {
+        for (int c = 0; c < chars.Length; c++) {
             string content = null;
 
             string name = Path.GetFileNameWithoutExtension(characterFilePaths[c]);
@@ -59,20 +66,68 @@ partial class ruok {
     public static void Rend(ICanvas canv) {
         canv.Clear(Color.Black);
 
+        charposWP = new Vector2(canv.Width / 2, canv.Height / 2);
+        charposSP = charposWP - campos + new Vector2(canv.Width / 2, canv.Height / 2);
+
+        campos += m.twn2(campos, charposWP, 5);
+
+        drawplayer(canv, chars[0], charposSP, false);
+
+        drawweapon(canv, weaps[0], new Vector2(charposSP.X + m.sin(m.deg2rad(wdir + m.rad2deg(m.atan2(Mouse.Position.Y - charposSP.Y, Mouse.Position.X - charposSP.X)))) * 14, charposSP.Y - m.cos(m.deg2rad(wdir + m.rad2deg(m.atan2(Mouse.Position.Y - charposSP.Y, Mouse.Position.X - charposSP.X)))) * 14), wdir * 2 - 90 + m.rad2deg(m.atan2(Mouse.Position.Y - charposSP.Y, Mouse.Position.X - charposSP.X)));
+
+        if (Mouse.IsButtonPressed(MouseButton.Left)) {
+            wd = !wd;
+            wdap = 0;
+        }
+
+        wdap += Time.DeltaTime * 15;
+
+        if (wdap >= 1) { wdap = 1; }
+
+        wdir += m.twn(wdir, ease.oback(wdap) * 90 - (wd? -90 : 90), 1.2f);
+    }
+
+
+
+
+    static void drawplayer(ICanvas canv, chr data, Vector2 pos, bool l) {
         canv.DrawTexture(
             tex,
             new Rectangle(
-                chars[0].tlpos,
-                new Vector2((chars[0].brpos.X - chars[0].tlpos.X) / 9, chars[0].brpos.Y - chars[0].tlpos.Y),
+                data.tlpos,
+                new Vector2((data.brpos.X - data.tlpos.X) / 9, data.brpos.Y - data.tlpos.Y),
                 Alignment.TopLeft
             ),
             new Rectangle(
-                new Vector2(canv.Width / 2, canv.Height / 2),
-                new Vector2((chars[0].brpos.X - chars[0].tlpos.X) / 9, chars[0].brpos.Y - chars[0].tlpos.Y),
+                pos,
+                new Vector2((data.brpos.X - data.tlpos.X) / 9, data.brpos.Y - data.tlpos.Y),
                 Alignment.Center
             )
         );
     }
+
+    static void drawweapon(ICanvas canv, weap data, Vector2 pos, float dir) {
+        canv.Translate( pos.X, pos.Y );
+        canv.Rotate(m.deg2rad(dir));
+        canv.Translate(0, -(data.brpos.Y - data.tlpos.Y) / 2);
+
+        canv.DrawTexture(
+            tex,
+            new Rectangle(
+                data.tlpos,
+                new Vector2((data.brpos.X - data.tlpos.X), data.brpos.Y - data.tlpos.Y),
+                Alignment.TopLeft
+            ),
+            new Rectangle(
+                Vector2.Zero,
+                new Vector2((data.brpos.X - data.tlpos.X), data.brpos.Y - data.tlpos.Y),
+                Alignment.Center
+            )
+        );
+
+        canv.ResetState();
+    }
+
 
 
 

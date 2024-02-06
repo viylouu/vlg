@@ -45,4 +45,7 @@ partial class m {
     public static float pi = MathF.PI;
     public static float e = MathF.E;
     public static float inf = float.PositiveInfinity;
+
+    public static float deg2rad(float i) { return i * (pi / 180); }
+    public static float rad2deg(float i) { return i * (180 / pi); }
 }
