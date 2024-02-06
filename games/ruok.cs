@@ -1,7 +1,6 @@
 ﻿using SimulationFramework;
 using SimulationFramework.Drawing;
 using SimulationFramework.Input;
-using System.IO;
 using System.Numerics;
 
 partial class ruok {
@@ -66,10 +65,10 @@ partial class ruok {
     public static void Rend(ICanvas canv) {
         canv.Clear(Color.Black);
 
-        charposWP = new Vector2(canv.Width / 2, canv.Height / 2);
-        charposSP = charposWP - campos + new Vector2(canv.Width / 2, canv.Height / 2);
+        charposWP = Vector2.Zero;
+        charposSP = charposWP - campos;
 
-        campos += m.twn2(campos, charposWP, 5);
+        campos += m.twn2(campos, charposWP + (Mouse.Position / 5 - new Vector2(canv.Width / 2, canv.Height / 2) - new Vector2(canv.Width / 2, canv.Height / 2)/5), 5);
 
         drawplayer(canv, chars[0], charposSP, false);
 
