@@ -30,6 +30,8 @@ partial class m {
     public static float tanh(float inp) { return MathF.Tanh(inp); }
     public static float sqr(float inp) { return inp * inp; }
     public static float cbe(float inp) { return inp * inp * inp; }
+    public static float qrt(float inp) { return inp * inp * inp * inp; }
+    public static float qnt(float inp) { return inp * inp * inp * inp * inp; }
 
     public static float dist2(Vector2 p1, Vector2 p2) { return sqrt(sqr(p2.X - p1.X) + sqr(p2.Y - p1.Y)); }
     public static float dist3(Vector3 p1, Vector3 p2) { return cbrt(sqr(p2.X - p1.X) + sqr(p2.Y - p1.Y) + sqr(p2.Z - p1.Z)); }

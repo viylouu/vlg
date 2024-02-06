@@ -59,7 +59,6 @@ partial class ruok {
     public static void Rend(ICanvas canv) {
         canv.Clear(Color.Black);
 
-        //drawchar0
         canv.DrawTexture(
             tex,
             new Rectangle(
@@ -82,7 +81,8 @@ partial class ruok {
     enum atktype {
         melee,
         magic,
-        ranged
+        ranged,
+        all
     }
 
     class chr { 
