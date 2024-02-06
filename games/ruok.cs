@@ -79,7 +79,7 @@ partial class ruok {
             wdap = 0;
         }
 
-        wdap += Time.DeltaTime * 15;
+        wdap += Time.DeltaTime * 2;
 
         if (wdap >= 1) { wdap = 1; }
 
