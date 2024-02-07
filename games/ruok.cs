@@ -17,6 +17,8 @@ partial class ruok {
     static Vector2 charposSP;
     static Vector2 campos;
 
+    static int wid = 0;
+
     public static void takeover() {
         Program.curUpdate = () => Rend(Program.curCanv);
         Program.current = false;
@@ -65,6 +67,13 @@ partial class ruok {
     public static void Rend(ICanvas canv) {
         canv.Clear(Color.Black);
 
+        wid += (int)Mouse.ScrollWheelDelta;
+
+        if (wid < 0)
+            wid = weaps.Length - 1;
+        else if (wid >= weaps.Length)
+            wid = 0;
+
         charposWP = Vector2.Zero;
         charposSP = charposWP - campos;
 
@@ -72,18 +81,29 @@ partial class ruok {
 
         drawplayer(canv, chars[0], charposSP, false);
 
-        drawweapon(canv, weaps[0], new Vector2(charposSP.X + m.sin(m.deg2rad(wdir + m.rad2deg(m.atan2(Mouse.Position.Y - charposSP.Y, Mouse.Position.X - charposSP.X)))) * 14, charposSP.Y - m.cos(m.deg2rad(wdir + m.rad2deg(m.atan2(Mouse.Position.Y - charposSP.Y, Mouse.Position.X - charposSP.X)))) * 14), wdir * 2 - 90 + m.rad2deg(m.atan2(Mouse.Position.Y - charposSP.Y, Mouse.Position.X - charposSP.X)));
+        float front = m.rad2deg(m.atan2(Mouse.Position.Y - charposSP.Y, Mouse.Position.X - charposSP.X));
+
+        drawweapon(
+            canv, //canvas
+            weaps[wid], //weapon data
+            new Vector2( //pos
+                charposSP.X + m.sin(m.deg2rad(wdir + front)) * 14, 
+                charposSP.Y - m.cos(m.deg2rad(wdir + front)) * 14
+            ), 
+            wdir * 2 - 90 + front //direction
+        );
 
         if (Mouse.IsButtonPressed(MouseButton.Left)) {
             wd = !wd;
             wdap = 0;
         }
 
-        wdap += Time.DeltaTime * 2;
+        if (wdap >= 1) 
+            wdap = 1;
+        else
+            wdap += Time.DeltaTime * (1 - weaps[wid].wei) * 5f;
 
-        if (wdap >= 1) { wdap = 1; }
-
-        wdir += m.twn(wdir, ease.oback(wdap) * 90 - (wd? -90 : 90), 1.2f);
+        wdir = !wd? ease.oback(wdap) * 180 : ease.iback(1 - wdap) * 180;
     }
 
 
