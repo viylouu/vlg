@@ -93,17 +93,14 @@ partial class ruok {
             wdir * 2 - 90 + front //direction
         );
 
-        if (Mouse.IsButtonPressed(MouseButton.Left)) {
-            wd = !wd;
-            wdap = 0;
-        }
+        if (Mouse.IsButtonDown(MouseButton.Left) && wdap >= .85f) { wd = !wd; wdap = 0; }
 
         if (wdap >= 1) 
             wdap = 1;
         else
-            wdap += Time.DeltaTime * (1 - weaps[wid].wei) * 5f;
+            wdap += Time.DeltaTime * (1 - weaps[wid].wei) * 5;
 
-        wdir = !wd? ease.oback(wdap) * 180 : ease.iback(1 - wdap) * 180;
+        wdir += m.twn(wdir, !wd? ease.oback(wdap) * 180 : ease.iback(1 - wdap) * 180, 1.2f);
     }
 
 
