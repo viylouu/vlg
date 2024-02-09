@@ -103,9 +103,6 @@ partial class ruok {
         wdir += m.twn(wdir, !wd? ease.oback(wdap) * 180 : ease.iback(1 - wdap) * 180, 1.2f);
     }
 
-
-
-
     static void drawplayer(ICanvas canv, chr data, Vector2 pos, bool l) {
         canv.DrawTexture(
             tex,
@@ -143,11 +140,6 @@ partial class ruok {
 
         canv.ResetState();
     }
-
-
-
-
-
 
     enum atktype {
         melee,
